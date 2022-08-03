@@ -5,11 +5,6 @@ const fs = require('fs');
 const path = require('path');
 
 const key = core.getInput('key', { required: true})
-const restoreKeys = core
-  .getInput('restore-keys')
-  .split("\n")
-  .map(s => s.trim())
-  .filter(x => x !== "")
 
 async function myexec(script, args) {
   var srcDir = path.dirname(__filename)
@@ -27,17 +22,6 @@ const paths = [
   '/nix/var/nix/profiles/per-user/root/channels'
 ]
 
-async function restoreCache() {
-  printInfo('Restoring cache for key: ' + key)
-  const cacheKey = await cache.restoreCache(paths, key, restoreKeys)
-  if (cacheKey === undefined) {
-    printInfo('No cache found for given key')
-  } else {
-    printInfo(`Cache restored from ${cacheKey}`)
-  }
-  return cacheKey
-}
-
 async function prepareSave(cacheKey) {
   if (cacheKey === undefined) {
     printInfo('Preparing save')
@@ -52,23 +36,10 @@ async function saveCache(cacheKey) {
   }
 }
 
-async function installWithNix(cacheKey) {
-  if (cacheKey === undefined) {
-    printInfo('Installing with Nix')
-    await myexec('core.sh', ['install-with-nix'])
-  } else {
-    printInfo('Installing from cache')
-    await myexec('core.sh', ['install-from-cache'])
-  }
-}
-
 (async function run() {
-  printInfo('Preparing restore')
-  await myexec('core.sh', ['prepare-restore'])
-
-  const cacheKey = await restoreCache()
-
-  await installWithNix(cacheKey)
+  printInfo('Preparing save')
+  const cacheKey = undefined
+  // const cacheKey = core.getState("nix-cache-key");
 
   await prepareSave(cacheKey)
 

@@ -4,7 +4,7 @@
   "description": "Use the GitHub Actions cache for Nix packages",
   "main": "src/main.js",
   "scripts": {
-    "package": "ncc build -o dist --source-map"
+    "build": "ncc build -o dist/restore src/restore.js && ncc build -o dist/save src/save.js"
   },
   "repository": {
     "type": "git",
